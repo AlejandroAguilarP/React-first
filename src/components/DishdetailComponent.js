@@ -28,8 +28,8 @@ class CommentForm extends Component {
     this.toggleModal = this.toggleModal.bind(this);
   }
   handleSubmit(values) {
-    console.log("Current state is: " + JSON.stringify(values));
-    alert("Curren state is: " + JSON.stringify(values));
+    this.toggleModal();
+    this.props.addComment(this.props.dishId, values.rating, values.author, values.comment)
   }
   toggleModal() {
     this.setState({
@@ -137,7 +137,7 @@ function RenderDish({ dish }) {
     </div>
   );
 }
-function RenderComments({ comments }) {
+function RenderComments({comments, addComment, dishId}) {
   const comms = comments.map((comment) => {
     return (
       <React.Fragment key={comment.id}>
@@ -159,7 +159,7 @@ function RenderComments({ comments }) {
       <h4>Comments</h4>
       <ul className="list-unstyled">{comms}</ul>
 
-      <CommentForm />
+      <CommentForm dishId={dishId} addComment={addComment} />
     </div>
   );
 }
@@ -185,7 +185,10 @@ const Dishdetail = (props) => {
         </div>
         <div className="row">
           <RenderDish dish={props.dish} />
-          <RenderComments comments={props.comments} />
+          <RenderComments comments={props.comments}
+            addComment={props.addComment}
+            dishId={props.dish.id}
+          />
         </div>
       </div>
     );
