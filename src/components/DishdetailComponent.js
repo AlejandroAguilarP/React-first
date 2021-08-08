@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { Button, Label, Col, Row } from "reactstrap";
 import { Control, LocalForm, Errors } from "react-redux-form";
 import {Loading} from './LoadingComponent';
+import {baseUrl} from '../shared/baseUrl';
 const required = (val) => val && val.length;
 const maxlength = (len) => (val) => !val || val.length <= len;
 const minlength = (len) => (val) => val && val.length >= len;
@@ -29,7 +30,7 @@ class CommentForm extends Component {
   }
   handleSubmit(values) {
     this.toggleModal();
-    this.props.addComment(this.props.dishId, values.rating, values.author, values.comment)
+    this.props.postComment(this.props.dishId, values.rating, values.author, values.comment)
   }
   toggleModal() {
     this.setState({
@@ -128,7 +129,7 @@ function RenderDish({ dish }) {
   return (
     <div className="col-md-5 col-12 m-1">
       <Card>
-        <CardImg width="100%" src={dish.image} alt={dish.name} />
+        <CardImg width="100%" src={baseUrl + dish.image} alt={dish.name} />
         <CardBody>
           <CardTitle> {dish.name} </CardTitle>
           <CardText>{dish.description}</CardText>
@@ -137,7 +138,7 @@ function RenderDish({ dish }) {
     </div>
   );
 }
-function RenderComments({comments, addComment, dishId}) {
+function RenderComments({comments, postComment, dishId}) {
   const comms = comments.map((comment) => {
     return (
       <React.Fragment key={comment.id}>
@@ -159,7 +160,7 @@ function RenderComments({comments, addComment, dishId}) {
       <h4>Comments</h4>
       <ul className="list-unstyled">{comms}</ul>
 
-      <CommentForm dishId={dishId} addComment={addComment} />
+      <CommentForm dishId={dishId} postComment={postComment} />
     </div>
   );
 }
@@ -203,7 +204,7 @@ const Dishdetail = (props) => {
         <div className="row">
           <RenderDish dish={props.dish} />
           <RenderComments comments={props.comments}
-            addComment={props.addComment}
+            postComment={props.postComment}
             dishId={props.dish.id}
           />
         </div>
