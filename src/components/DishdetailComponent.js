@@ -14,8 +14,9 @@ import {
 import { Link } from "react-router-dom";
 import { Button, Label, Col, Row } from "reactstrap";
 import { Control, LocalForm, Errors } from "react-redux-form";
-import {Loading} from './LoadingComponent';
-import {baseUrl} from '../shared/baseUrl';
+import { Loading } from "./LoadingComponent";
+import { baseUrl } from "../shared/baseUrl";
+import { FadeTransform, Fade, Stagger } from "react-animation-components";
 const required = (val) => val && val.length;
 const maxlength = (len) => (val) => !val || val.length <= len;
 const minlength = (len) => (val) => val && val.length >= len;
@@ -30,7 +31,12 @@ class CommentForm extends Component {
   }
   handleSubmit(values) {
     this.toggleModal();
-    this.props.postComment(this.props.dishId, values.rating, values.author, values.comment)
+    this.props.postComment(
+      this.props.dishId,
+      values.rating,
+      values.author,
+      values.comment
+    );
   }
   toggleModal() {
     this.setState({
@@ -41,60 +47,61 @@ class CommentForm extends Component {
     return (
       <>
         <Modal isOpen={this.state.isModalOpen} toggleModal={this.toggleModal}>
-        <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
-          <ModalBody >
+          <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+          <ModalBody>
             <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
               <Row className="form-group">
-              <Label htmlFor="rating" md={10}>
+                <Label htmlFor="rating" md={10}>
                   {" "}
                   Rating{" "}
                 </Label>
                 <Col md={12}>
-                <Control.select
-                  model=".rating"
-                  id="rating"
-                  name="rating"
-                  className="form-control"
-                >
-                  <option selected disabled>Select...</option>
-                  <option>1</option>
-                  <option>2</option>
-                  <option>3</option>
-                  <option>4</option>
-                  <option>5</option>
-                </Control.select>
+                  <Control.select
+                    model=".rating"
+                    id="rating"
+                    name="rating"
+                    className="form-control"
+                  >
+                    <option selected disabled>
+                      Select...
+                    </option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                  </Control.select>
                 </Col>
               </Row>
               <Row className="form-group">
-              <Label htmlFor="author" md={10}>
+                <Label htmlFor="author" md={10}>
                   {" "}
                   Author{" "}
                 </Label>
                 <Col md={12}>
-
-                <Control.text
-                  model=".author"
-                  id="author"
-                  name="author"
-                  className="form-control"
-                  validators={{
-                    minlength: minlength(3),
-                    maxlength: maxlength(15),
-                  }}
+                  <Control.text
+                    model=".author"
+                    id="author"
+                    name="author"
+                    className="form-control"
+                    validators={{
+                      minlength: minlength(3),
+                      maxlength: maxlength(15),
+                    }}
                   />
-                <Errors
-                  className="text-danger"
-                  model=".author"
-                  show="touched"
-                  messages={{
-                    minlength: "Must be greater than 3 characters",
-                    maxlength: "Must be 15 characters or less",
-                  }}
+                  <Errors
+                    className="text-danger"
+                    model=".author"
+                    show="touched"
+                    messages={{
+                      minlength: "Must be greater than 3 characters",
+                      maxlength: "Must be 15 characters or less",
+                    }}
                   />
-                  </Col>
+                </Col>
               </Row>
               <Row className="form-group">
-              <Label htmlFor="comment" md={10}>
+                <Label htmlFor="comment" md={10}>
                   {" "}
                   Comment{" "}
                 </Label>
@@ -128,62 +135,71 @@ class CommentForm extends Component {
 function RenderDish({ dish }) {
   return (
     <div className="col-md-5 col-12 m-1">
-      <Card>
-        <CardImg width="100%" src={baseUrl + dish.image} alt={dish.name} />
-        <CardBody>
-          <CardTitle> {dish.name} </CardTitle>
-          <CardText>{dish.description}</CardText>
-        </CardBody>
-      </Card>
+      <FadeTransform
+        in
+        transformProps={{
+          exitTransform: "scale(0.5) translateY(-50%)",
+        }}
+      >
+        <Card>
+          <CardImg width="100%" src={baseUrl + dish.image} alt={dish.name} />
+          <CardBody>
+            <CardTitle> {dish.name} </CardTitle>
+            <CardText>{dish.description}</CardText>
+          </CardBody>
+        </Card>
+      </FadeTransform>
     </div>
   );
 }
-function RenderComments({comments, postComment, dishId}) {
-  const comms = comments.map((comment) => {
-    return (
-      <React.Fragment key={comment.id}>
-        <li className="mt-1"> {comment.comment} </li>
-        <li>
-          {" "}
-          -- {comment.author},{" "}
-          {new Intl.DateTimeFormat("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-          }).format(new Date(Date.parse(comment.date)))}{" "}
-        </li>
-      </React.Fragment>
-    );
-  });
+function RenderComments({ comments, postComment, dishId }) {
   return (
     <div className="col-md-5 col-12 m-1">
       <h4>Comments</h4>
-      <ul className="list-unstyled">{comms}</ul>
-
+      <ul className="list-unstyled">
+        <Stagger in>
+          {comments.map((comment) => {
+            return (
+              <Fade in>
+                <li key={comment.id}>
+                  <p>{comment.comment}</p>
+                  <p>
+                    -- {comment.author} ,{" "}
+                    {new Intl.DateTimeFormat("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "2-digit",
+                    }).format(new Date(Date.parse(comment.date)))}
+                  </p>
+                </li>
+              </Fade>
+            );
+          })}
+        </Stagger>
+      </ul>
       <CommentForm dishId={dishId} postComment={postComment} />
     </div>
   );
 }
 
 const Dishdetail = (props) => {
-  if(props.isLoading) {
-    return(
+  if (props.isLoading) {
+    return (
       <div className="container">
         <div className="row">
           <Loading />
         </div>
       </div>
     );
-  }else if(props.errMess) {
-    return(
+  } else if (props.errMess) {
+    return (
       <div className="container">
         <div className="row">
           <h4>{props.errMess}</h4>
         </div>
       </div>
     );
-  }
-  else if (props.dish != null) {
+  } else if (props.dish != null) {
     return (
       <div className="container">
         <div className="row">
@@ -203,7 +219,8 @@ const Dishdetail = (props) => {
         </div>
         <div className="row">
           <RenderDish dish={props.dish} />
-          <RenderComments comments={props.comments}
+          <RenderComments
+            comments={props.comments}
             postComment={props.postComment}
             dishId={props.dish.id}
           />
